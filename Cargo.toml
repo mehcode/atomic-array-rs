@@ -6,5 +6,6 @@ description = "Defines several array types in which elements may be updated atom
 keywords = ["atomic", "array"]
 categories = ["asynchronous", "concurrency", "data-structures"]
 license = "MIT/Apache-2.0"
+homepage = "https://github.com/mehcode/atomic-array-rs"
 
 [dependencies]
