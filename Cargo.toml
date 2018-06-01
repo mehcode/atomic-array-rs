@@ -1,0 +1,10 @@
+[package]
+name = "atomic-array-rs"
+version = "0.1.0"
+authors = ["Ryan Leckey <leckey.ryan@gmail.com>"]
+description = "Defines several array types in which elements may be updated atomically. Intended to provide atomic array types similar to those found in java.util.concurrent.atomic in Java."
+keywords = ["atomic", "array"]
+categories = ["asynchronous", "concurrency", "data-structures"]
+license = "MIT/Apache-2.0"
+
+[dependencies]
