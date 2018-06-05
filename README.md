@@ -17,7 +17,7 @@ Provides the following types:
 
 ```toml
 [dependencies]
-atomic-array = "0.1"
+atomic-array = "0.2"
 ```
 
 ## License
