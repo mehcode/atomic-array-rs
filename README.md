@@ -4,6 +4,15 @@
 [![Docs.rs](https://docs.rs/atomic-array/badge.svg)](https://docs.rs/atomic-array)
 > Defines several array types in which elements may be updated atomically. Intended to provide atomic array types similar to those found in `java.util.concurrent.atomic` in Java.
 
+Provides the following types:
+
+ * `AtomicOptionRefArray` – Corresponds to [`AtomicReferenceArray`](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/atomic/AtomicReferenceArray.html).
+ * `AtomicRefArray` – `AtomicOptionRefArray` with enforced default values to remove the optional property of the elements.
+ * `AtomicBoolArray`
+ * `AtomicUsizeArray`, `AtomicIsizeArray`
+ * `AtomicI8` ... `AtomicI64Array` (requires a `nightly` compiler and `integer_atomics` feature)
+ * `AtomicU8` ... `AtomicU64Array` (requires a `nightly` compiler and `integer_atomics` feature)
+
 ## Usage
 
 ```toml
