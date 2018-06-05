@@ -20,9 +20,9 @@ impl<T> AtomicRefArray<T> {
 
     /// Constructs a new array with the specified length.
     /// Uses the given function to construct each value.
-    pub fn new_with(len: usize, f: impl Fn(usize) -> Arc<T>) -> Self {
+    pub fn new_with<U: Into<Arc<T>>>(len: usize, f: impl Fn(usize) -> U) -> Self {
         Self {
-            buf: AtomicOptionRefArray::new_with(len, |i| Some(f(i))),
+            buf: AtomicOptionRefArray::new_with(len, |i| Some(f(i).into())),
         }
     }
 
@@ -31,20 +31,32 @@ impl<T> AtomicRefArray<T> {
         self.buf.len()
     }
 
-    /// Atomically loads and returns a reference to an value at the given position or `None`
+    /// Returns `true` if the array has a length of 0.
+    pub fn is_empty(&self) -> bool {
+        self.buf.is_empty()
+    }
+
+    /// Loads and returns a reference to an value at the given position or `None`
     /// if the value at the index is not set.
     ///
     /// Panics if `index` is out of bounds.
     pub fn load(&self, index: usize) -> Arc<T> {
-        self.buf
-            .load(index)
-            .expect("value in AtomicRefArray is None (should be impossible)")
+        // NOTE: `load` cannot return None
+        self.buf.load(index).unwrap()
     }
 
-    /// Atomically stores the value at the given position.
+    /// Stores the value at the given position.
     ///
     /// Panics if `index` is out bounds.
     pub fn store(&self, index: usize, value: impl Into<Arc<T>>) {
-        self.buf.store(index, value);
+        self.buf.store(index, value.into());
+    }
+
+    /// Swaps the value at the given position, returning the previous value.
+    ///
+    /// Panics if `index` is out of bounds.
+    pub fn swap(&self, index: usize, value: impl Into<Arc<T>>) -> Arc<T> {
+        // NOTE: `load` cannot return None
+        self.buf.swap(index, value.into()).unwrap()
     }
 }

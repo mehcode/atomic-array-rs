@@ -1,3 +1,4 @@
+use super::IntoOptionArc;
 use std::mem;
 use std::ptr::null_mut;
 use std::sync::atomic::{AtomicPtr, Ordering};
@@ -27,11 +28,12 @@ impl<T> AtomicOptionRefArray<T> {
 
     /// Constructs a new array with the specified length.
     /// Uses the given function to construct each value.
-    pub fn new_with(len: usize, f: impl Fn(usize) -> Option<Arc<T>>) -> Self {
+    pub fn new_with<U: IntoOptionArc<T>>(len: usize, f: impl Fn(usize) -> U) -> Self {
         let mut buf = Vec::with_capacity(len);
 
         for i in 0..len {
-            let value = f(i).map_or_else(null_mut, |value| Arc::into_raw(value) as *mut _);
+            let value = f(i).into_option_arc()
+                .map_or_else(null_mut, |value| Arc::into_raw(value) as *mut _);
 
             buf.push(AtomicPtr::new(value));
         }
@@ -46,37 +48,38 @@ impl<T> AtomicOptionRefArray<T> {
         self.buf.len()
     }
 
-    /// Atomically loads and returns a reference to an value at the given position or `None`
+    /// Returns `true` if the array has a length of 0.
+    pub fn is_empty(&self) -> bool {
+        self.buf.is_empty()
+    }
+
+    /// Loads and returns a reference to an value at the given position or `None`
     /// if the value at the index is not set.
     ///
     /// Panics if `index` is out of bounds.
     pub fn load(&self, index: usize) -> Option<Arc<T>> {
-        let value = self.buf[index].load(Ordering::SeqCst);
-        if value.is_null() {
-            // Return `None` if null is stored in the AtomicPtr
-            None
-        } else {
-            // Otherwise, reconstruct the stored Arc
-            let value = unsafe { Arc::from_raw(value) };
+        let ptr = self.buf[index].load(Ordering::SeqCst);
 
-            // And create a new reference to return
-            let value_ = Arc::clone(&value);
-
-            // Forget the reconstructed Arc (as its still in the array as a raw ptr)
-            mem::forget(value);
-
-            // And return our new reference
-            Some(value_)
-        }
+        ptr_to_option_arc(ptr)
     }
 
-    /// Atomically stores the value at the given position.
+    /// Stores the value at the given position.
     ///
     /// Panics if `index` is out of bounds.
-    pub fn store(&self, index: usize, value: impl Into<Arc<T>>) {
-        let value = Arc::into_raw(value.into()) as *mut _;
+    pub fn store(&self, index: usize, value: impl IntoOptionArc<T>) {
+        let ptr = option_arc_to_ptr(value);
 
-        self.buf[index].store(value, Ordering::SeqCst);
+        self.buf[index].store(ptr, Ordering::SeqCst);
+    }
+
+    /// Swaps the value at the given position, returning the previous value.
+    ///
+    /// Panics if `index` is out of bounds.
+    pub fn swap(&self, index: usize, value: impl IntoOptionArc<T>) -> Option<Arc<T>> {
+        let ptr = option_arc_to_ptr(value);
+        let ptr = self.buf[index].swap(ptr, Ordering::SeqCst);
+
+        ptr_to_option_arc(ptr)
     }
 }
 
@@ -92,6 +95,33 @@ impl<T> Drop for AtomicOptionRefArray<T> {
                 }
             }
         }
+    }
+}
+
+fn option_arc_to_ptr<T>(value: impl IntoOptionArc<T>) -> *mut T {
+    if let Some(value) = value.into_option_arc() {
+        Arc::into_raw(value) as *mut _
+    } else {
+        null_mut()
+    }
+}
+
+fn ptr_to_option_arc<T>(ptr: *mut T) -> Option<Arc<T>> {
+    if ptr.is_null() {
+        // Return `None` if null is stored in the AtomicPtr
+        None
+    } else {
+        // Otherwise, reconstruct the stored Arc
+        let value = unsafe { Arc::from_raw(ptr) };
+
+        // And create a new reference to return
+        let value_ = Arc::clone(&value);
+
+        // Forget the reconstructed Arc (as its still in the array as a raw ptr)
+        mem::forget(value);
+
+        // And return our new reference
+        Some(value_)
     }
 }
 
