@@ -1,6 +1,6 @@
 [package]
 name = "atomic-array"
-version = "0.2.1"
+version = "0.3.0"
 authors = ["Ryan Leckey <leckey.ryan@gmail.com>"]
 description = "Defines several array types in which elements may be updated atomically. Intended to provide atomic array types similar to those found in java.util.concurrent.atomic in Java."
 keywords = ["atomic", "array"]
