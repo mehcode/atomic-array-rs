@@ -1,4 +1,5 @@
 use atomic_ref2::{AtomicOptionRef, IntoOptionArc};
+use std::sync::Arc;
 
 /// An array of references in which elements may be updated and retrieved atomically.
 ///
