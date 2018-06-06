@@ -6,7 +6,7 @@ macro_rules! impl_array {
         #[doc = $type_name]
         #[doc = "` array in which elements may be updated atomically."]
         pub struct $name {
-            buf: Box<[$atomic_type]>
+            buf: Box<[$atomic_type]>,
         }
 
         impl $name {
