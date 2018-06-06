@@ -41,7 +41,6 @@ impl<T> AtomicRefArray<T> {
     ///
     /// Panics if `index` is out of bounds.
     pub fn load(&self, index: usize) -> Arc<T> {
-        // NOTE: `load` cannot return None
         self.buf.load(index).unwrap()
     }
 
@@ -56,7 +55,6 @@ impl<T> AtomicRefArray<T> {
     ///
     /// Panics if `index` is out of bounds.
     pub fn swap(&self, index: usize, value: impl Into<Arc<T>>) -> Arc<T> {
-        // NOTE: `load` cannot return None
         self.buf.swap(index, value.into()).unwrap()
     }
 }

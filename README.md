@@ -1,4 +1,4 @@
-# atomic-array-rs
+# atomic-array
 ![Rust](https://img.shields.io/badge/rust-stable-brightgreen.svg)
 [![Crates.io](https://img.shields.io/crates/d/atomic-array.svg)](https://crates.io/crates/atomic-array)
 [![Docs.rs](https://docs.rs/atomic-array/badge.svg)](https://docs.rs/atomic-array)

@@ -10,3 +10,4 @@ readme = "README.md"
 homepage = "https://github.com/mehcode/atomic-array-rs"
 
 [dependencies]
+atomic-ref2 = "0.1"
